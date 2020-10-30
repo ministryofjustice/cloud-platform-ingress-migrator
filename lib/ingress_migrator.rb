@@ -1,3 +1,4 @@
+require "tempfile"
 require "bundler/setup"
 require "aws-sdk-route53"
 require "json"
