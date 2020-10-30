@@ -2,6 +2,14 @@
 
 Move ingresses on the cloud platform from one ingress controller to another, with zero downtime.
 
+## Usage
+
+Given two ingresses `my-ingress` and `my-ingress-second` in the namespace `my-namespace`, where each ingress runs on a different ingress controller and handles traffic for the host `my.domain.name`, you can switch traffic from to the `my-ingress-second` ingress like this:
+
+```
+bin/update-txt-record-for-domain.rb my.domain.name my-namespace my-ingress-second
+```
+
 ## Problem
 
 Internet traffic is routed to services running on the Cloud Platform like this:
