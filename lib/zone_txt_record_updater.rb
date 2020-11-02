@@ -5,8 +5,11 @@ class ZoneTxtRecordUpdater
   EXT_DNS_PREFIX = "_external_dns"
   TXT_VALUE_BASE = %["heritage=external-dns,external-dns/owner=#{CLUSTER},external-dns/resource=ingress/NAMESPACE/INGRESS_NAME"]
 
-  def initialize(route53client)
-    @route53client = route53client
+  def initialize()
+    @route53client = Aws::Route53::Client.new(
+      region: "eu-west-2",
+      profile: ENV["AWS_PROFILE"]
+    )
   end
 
   def update_txt_record_for_domain(params)
