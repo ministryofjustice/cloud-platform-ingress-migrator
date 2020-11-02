@@ -4,22 +4,26 @@ Move ingresses on the cloud platform from one ingress controller to another, wit
 
 ## Usage
 
-### Create second ingress
+### Migrate ingresses to a different ingress controller, 
 
-Given an ingress `my-ingress` in namespace `my-namespace`, deploy a copy of it called `my-ingress-second` with ingress class `k8snginx` like this:
-
-```
-bin/copy-ingress.rb my-namespace my-ingress k8snginx
-```
-
-> This will fail unless the `ingress-clash` OPA policy has been disabled
-
-### Change DNS
-
-Given two ingresses `my-ingress` and `my-ingress-second` in the namespace `my-namespace`, where each ingress runs on a different ingress controller and handles traffic for the host `my.domain.name`, you can switch traffic from to the `my-ingress-second` ingress like this:
+Given an array of hashes with namespace and ingresses, target ingress class: 
+- disable OPA policy `ingress-clash`
+- migrate ingresses to target ingress controller
+- re-apply the OPA policy back
 
 ```
-bin/update-txt-record-for-domain.rb my.domain.name my-namespace my-ingress-second
+bin/migrate-ingresses.rb
+```
+
+### Send traffic to given ingress controller
+
+Given an array of hashes with namespace and ingresses, target ingress class:
+- disable OPA policy `ingress-clash`
+- update the TXT record to target ingress class
+- re-apply the OPA policy back
+
+```
+bin/use-ingresses-on-controller.rb
 ```
 
 ## Problem
