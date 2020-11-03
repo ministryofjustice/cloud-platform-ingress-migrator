@@ -13,13 +13,14 @@ require "open3"
 def main()
   nginx_class_ingresses = build_ingresses_has_annotations("nginx")
   null_class_ingresses = build_ingresses_has_annotations("")
+  no_annotation_ingresses = build_ingresses_no_annotations
 
-  File.open("ingress_list.txt", "w+") do |f|
-    f.puts(nginx_class_ingresses.inspect)
+  nginx_class_ingresses.concat(null_class_ingresses)
+  nginx_class_ingresses.concat(no_annotation_ingresses) 
+
+  File.open("nginx_class_ingresses.json", "w+") do |file|
+    file.write nginx_class_ingresses.to_json
   end
-  # TODO Check if the migration script copy ingress which has no annotations 
-  puts "Ingress with no annotations"
-  puts build_ingresses_no_annotations
 end 
 
 
@@ -51,7 +52,7 @@ ingress_array
 end
 
 def get_ingresses
-  cmd = "kubectl get ingress --all-namespaces -o json"
+  cmd = "kubectl get ingress -n poornima-dev -o json"
 
   stdout, stderr, status = Open3.capture3(cmd)
 

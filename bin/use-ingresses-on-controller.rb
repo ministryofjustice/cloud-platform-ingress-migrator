@@ -22,8 +22,8 @@ end
 
 def send_traffic_to_ingress(ztru, i, target_ingress_class)
   ingress = Ingress.new(
-    namespace: i.fetch(:namespace),
-    name: i.fetch(:ingress)
+    namespace: i.fetch("namespace"),
+    name: i.fetch("ingress_name")
   )
 
   params = {
@@ -41,12 +41,13 @@ end
 
 target_ingress_class = "nginx"
 
-ingresses = [
-  {
-    namespace: "dstest",
-    ingress: "helloworld-rubyapp-ingress"
-  }
-]
+# ingresses = [
+#   {
+#     namespace: "dstest",
+#     ingress: "helloworld-rubyapp-ingress"
+#   }
+# ]
+ingresses_list = JSON.parse(File.read("nginx_class_ingresses.json"))
 
-main(ingresses, target_ingress_class)
+main(ingresses_list, target_ingress_class)
 log "Done"

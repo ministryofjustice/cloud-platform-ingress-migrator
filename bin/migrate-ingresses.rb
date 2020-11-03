@@ -10,17 +10,23 @@ require "pry-byebug"
 require_relative "../lib/ingress_migrator"
 
 def main(list, target_ingress_class)
+  @second_ingresses = []
+
   delete_ingress_clash_policy
   ztru = ZoneTxtRecordUpdater.new
   list.each { |i| migrate_ingress(ztru, i, target_ingress_class) }
 ensure
   restore_ingress_clash_policy
+  File.open("k8snginx-class-ingresses.json", "w+") do |file|
+    file.write @second_ingresses.to_json
+  end
+
 end
 
 def migrate_ingress(ztru, i, target_ingress_class)
   ingress = Ingress.new(
-    namespace: i.fetch(:namespace),
-    name: i.fetch(:ingress)
+    namespace: i.fetch("namespace"),
+    name: i.fetch("ingress_name")
   )
 
   new_ingress = "#{ingress.name}-second"
@@ -37,18 +43,22 @@ def migrate_ingress(ztru, i, target_ingress_class)
     log "  Updating TXT record for #{domain}"
     ztru.update_txt_record_for_domain(params.merge(domain: domain))
   end
+
+  @second_ingresses << params
 end
 
 ############################################################
 
 target_ingress_class = "k8snginx"
 
-ingresses = [
-  {
-    namespace: "dstest",
-    ingress: "helloworld-rubyapp-ingress"
-  }
-]
+ingresses_list = JSON.parse(File.read("nginx_class_ingresses.json"))
 
-main(ingresses, target_ingress_class)
+# ingresses_list = [
+#   {
+#     namespace: "dstest",
+#     ingress_name: "helloworld-rubyapp-ingress"
+#   }
+# ]
+
+main(ingresses_list, target_ingress_class)
 log "Done"
