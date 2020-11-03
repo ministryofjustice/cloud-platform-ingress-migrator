@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-# Script to build the list of ingresses and its namespaces with 
+# Script to build the list of ingresses and its namespaces with
 # the ingress-class annotations as "nginx" or empty i.e "" or ingress
-# with no annotations and into a json file 
+# with no annotations and into a json file
 
 require "json"
 require "open3"
@@ -18,7 +18,6 @@ def main
   nginx_class_ingresses.concat(no_annotation_ingresses)
 
   File.write(NGINX_CLASS_INGRESS_LIST_FILE, nginx_class_ingresses.to_json)
-
 end
 
 def list_ingresses_has_annotations(target_ingress_class)

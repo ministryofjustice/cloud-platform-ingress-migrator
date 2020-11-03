@@ -10,12 +10,12 @@ require "pry-byebug"
 require_relative "../lib/ingress_migrator"
 
 NGINX_CLASS_INGRESS_LIST_FILE = "nginx_class_ingresses.json"
-K8SNGINX_CLASS_INGRESS_LIST_FILE = "k8snginx-class-ingresses.json" 
+K8SNGINX_CLASS_INGRESS_LIST_FILE = "k8snginx-class-ingresses.json"
 
 def main(list, target_ingress_class)
   delete_ingress_clash_policy
 
-  #Prevent second ingress being created before the disabled OPA policy takes action.
+  # Prevent second ingress being created before the disabled OPA policy takes action.
   sleep(30)
 
   ztru = ZoneTxtRecordUpdater.new
