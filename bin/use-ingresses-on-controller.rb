@@ -12,6 +12,8 @@ require "pry-byebug"
 
 require_relative "../lib/ingress_migrator"
 
+NGINX_CLASS_INGRESS_LIST_FILE = "nginx_class_ingresses.json"
+
 def main(list, target_ingress_class)
   delete_ingress_clash_policy
   ztru = ZoneTxtRecordUpdater.new
@@ -47,7 +49,7 @@ target_ingress_class = "nginx"
 #     ingress: "helloworld-rubyapp-ingress"
 #   }
 # ]
-ingresses_list = JSON.parse(File.read("nginx_class_ingresses.json"))
+ingresses_list = JSON.parse(File.read(NGINX_CLASS_INGRESS_LIST_FILE))
 
 main(ingresses_list, target_ingress_class)
 log "Done"

@@ -1,16 +1,17 @@
 #!/usr/bin/env ruby
 
-# Script to migrate multiple ingresses to a different ingress controller, by
-# deploying a second ingress on that controller, and updating the route53 TXT
-# record for each of the ingress's hostnames
+# Script to delete ingresses which has the ingress-class: "k8snginx".
+# When running the migrate-ingresses.rb, it created a second ingress
+# to be used by second/fallback ingress controller k8snginx. This has to be cleaned
+# after the ingress controller is upgraded and all traffic is moved to 
+# upgraded ingress controller.
 
-# TODO: remove this
-require "pry-byebug"
 require "json"
 require "open3"
 
-def main
-  second_ingresses_list = JSON.parse(File.read("k8snginx-class-ingresses.json"))
+def main(ingress_list_file)
+
+  second_ingresses_list = JSON.parse(File.read(ingress_list_file))
   second_ingresses_list.each { |i| delete_ingress(i) }
 end
 
@@ -30,4 +31,6 @@ end
 
 ############################################################
 
-main
+ingress_list_file = ARGV.shift
+raise "No file with ingress and namespace list is supplied" if ingress_list_file.nil?
+main ingress_list_file

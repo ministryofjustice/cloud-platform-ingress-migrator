@@ -9,17 +9,21 @@ require "pry-byebug"
 
 require_relative "../lib/ingress_migrator"
 
-def main(list, target_ingress_class)
-  @second_ingresses = []
+NGINX_CLASS_INGRESS_LIST_FILE = "nginx_class_ingresses.json"
+K8SNGINX_CLASS_INGRESS_LIST_FILE = "k8snginx-class-ingresses.json" 
 
+def main(list, target_ingress_class)
   delete_ingress_clash_policy
+
+  #Prevent second ingress being created before the disabled OPA policy takes action.
+  sleep(30)
+
   ztru = ZoneTxtRecordUpdater.new
-  list.each { |i| migrate_ingress(ztru, i, target_ingress_class) }
+  second_ingresses = list.map { |i| migrate_ingress(ztru, i, target_ingress_class) }
+
+  File.write(K8SNGINX_CLASS_INGRESS_LIST_FILE, second_ingresses.to_json)
 ensure
   restore_ingress_clash_policy
-  File.open("k8snginx-class-ingresses.json", "w+") do |file|
-    file.write @second_ingresses.to_json
-  end
 end
 
 def migrate_ingress(ztru, i, target_ingress_class)
@@ -43,14 +47,14 @@ def migrate_ingress(ztru, i, target_ingress_class)
     ztru.update_txt_record_for_domain(params.merge(domain: domain))
   end
 
-  @second_ingresses << params
+  params
 end
 
 ############################################################
 
 target_ingress_class = "k8snginx"
 
-ingresses_list = JSON.parse(File.read("nginx_class_ingresses.json"))
+ingresses_list = JSON.parse(File.read(NGINX_CLASS_INGRESS_LIST_FILE))
 
 # ingresses_list = [
 #   {
