@@ -20,7 +20,6 @@ ensure
   File.open("k8snginx-class-ingresses.json", "w+") do |file|
     file.write @second_ingresses.to_json
   end
-
 end
 
 def migrate_ingress(ztru, i, target_ingress_class)

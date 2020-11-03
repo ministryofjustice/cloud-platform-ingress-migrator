@@ -9,13 +9,10 @@ require "pry-byebug"
 require "json"
 require "open3"
 
-
-def main()
-
+def main
   second_ingresses_list = JSON.parse(File.read("k8snginx-class-ingresses.json"))
   second_ingresses_list.each { |i| delete_ingress(i) }
-
-end 
+end
 
 def delete_ingress(i)
   namespace = i.fetch("namespace")
@@ -29,10 +26,8 @@ def delete_ingress(i)
   unless status.success?
     raise stderr
   end
-
 end
 
 ############################################################
 
 main
-

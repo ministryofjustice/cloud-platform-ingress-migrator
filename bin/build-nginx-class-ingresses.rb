@@ -15,13 +15,12 @@ def main
   no_annotation_ingresses = build_ingresses_no_annotations
 
   nginx_class_ingresses.concat(null_class_ingresses)
-  nginx_class_ingresses.concat(no_annotation_ingresses) 
+  nginx_class_ingresses.concat(no_annotation_ingresses)
 
   File.open("nginx_class_ingresses.json", "w+") do |file|
     file.write nginx_class_ingresses.to_json
   end
-end 
-
+end
 
 def build_ingresses_has_annotations(target_ingress_class)
   ingress_array = []
