@@ -9,45 +9,42 @@ require "pry-byebug"
 require "json"
 require "open3"
 
-
-def main()
+def main
   nginx_class_ingresses = build_ingresses_has_annotations("nginx")
   null_class_ingresses = build_ingresses_has_annotations("")
 
   File.open("ingress_list.txt", "w+") do |f|
     f.puts(nginx_class_ingresses.inspect)
   end
-  # TODO Check if the migration script copy ingress which has no annotations 
+  # TODO Check if the migration script copy ingress which has no annotations
   puts "Ingress with no annotations"
   puts build_ingresses_no_annotations
-end 
-
+end
 
 def build_ingresses_has_annotations(target_ingress_class)
   ingress_array = []
-  get_ingresses.map { |ingress| 
-  if(ingress.dig("metadata").include?("annotations"))
-    if(ingress.dig("metadata","annotations","kubernetes.io/ingress.class").to_s == target_ingress_class)
-      ingress_name = ingress.dig("metadata","name")
-      namespace = ingress.dig("metadata","namespace")
+  get_ingresses.map do |ingress|
+    if ingress.dig("metadata").include?("annotations")
+      if ingress.dig("metadata", "annotations", "kubernetes.io/ingress.class").to_s == target_ingress_class
+        ingress_name = ingress.dig("metadata", "name")
+        namespace = ingress.dig("metadata", "namespace")
+        ingress_array.push({namespace: namespace, ingress_name: ingress_name})
+      end
+    end
+  end
+  ingress_array
+end
+
+def build_ingresses_no_annotations
+  ingress_array = []
+  get_ingresses.map do |ingress|
+    unless ingress.dig("metadata").include?("annotations")
+      ingress_name = ingress.dig("metadata", "name")
+      namespace = ingress.dig("metadata", "namespace")
       ingress_array.push({namespace: namespace, ingress_name: ingress_name})
     end
   end
-}
-ingress_array
-end
-
-
-def build_ingresses_no_annotations
-  ingress_array = []  
-  get_ingresses.map { |ingress| 
-  if(!ingress.dig("metadata").include?("annotations"))
-    ingress_name = ingress.dig("metadata","name")
-    namespace = ingress.dig("metadata","namespace")
-    ingress_array.push({namespace: namespace, ingress_name: ingress_name})
-  end
-}
-ingress_array
+  ingress_array
 end
 
 def get_ingresses
@@ -65,4 +62,3 @@ end
 ############################################################
 
 main
-
