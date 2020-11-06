@@ -15,7 +15,7 @@ def main
   no_annotation_ingresses = list_ingresses_no_annotations
   list = nginx_class_ingresses + null_class_ingresses + no_annotation_ingresses
 
-  File.write(NGINX_CLASS_INGRESS_LIST_FILE, list.to_json)
+  File.write(NGINX_CLASS_INGRESS_LIST_FILE, JSON.pretty_generate(list))
 end
 
 def list_ingresses_has_annotations(target_ingress_class)
