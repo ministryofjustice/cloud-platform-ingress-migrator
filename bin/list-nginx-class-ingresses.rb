@@ -14,8 +14,7 @@ def main
   null_class_ingresses = list_ingresses_has_annotations("")
   no_annotation_ingresses = list_ingresses_no_annotations
   list = nginx_class_ingresses + null_class_ingresses + no_annotation_ingresses
-  
-  
+
   puts "Total ingress listed "
   puts list.size
   File.write(NGINX_CLASS_INGRESS_LIST_FILE, JSON.pretty_generate(list))
@@ -73,7 +72,6 @@ def check_is_production(namespace)
   end
   JSON.parse(stdout)[0]
 end
-
 
 ############################################################
 
