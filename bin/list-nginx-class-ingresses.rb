@@ -13,12 +13,14 @@ NGINX_CLASS_INGRESS_LIST_FILE = "nginx_class_ingresses.json"
 
 def main
   $namespaces = get_namespaces
-  nginx_class_ingresses = ingresses_matching_class("nginx")
-  null_class_ingresses = ingresses_matching_class("")
-  no_annotation_ingresses = ingresses_matching_no_class
 
-  list = nginx_class_ingresses.compact + null_class_ingresses.compact + no_annotation_ingresses.compact
-  
+  nginx_class_ingresses = ingresses_matching_class("nginx")
+
+  # This returns ingresses with ingress class annotation  set to "" and ingresses no annotations
+  null_class_ingresses = ingresses_matching_class("") 
+
+  list = (nginx_class_ingresses + null_class_ingresses).compact 
+ 
   puts "Total ingress listed: #{list.size}"
 
   File.write(NGINX_CLASS_INGRESS_LIST_FILE, JSON.pretty_generate(list))
@@ -30,16 +32,6 @@ def ingresses_matching_class(target_ingress_class)
   .filter { |ingress| ingress.dig("metadata", "annotations", "kubernetes.io/ingress.class").to_s == target_ingress_class }
   .map do |ingress|
       ingress_array.push(non_production_tuple(ingress))
-  end
-  ingress_array
-end
-
-def ingresses_matching_no_class
-  ingress_array = []
-  get_ingresses.map do |ingress|
-    unless ingress.dig("metadata").include?("annotations")
-        ingress_array.push(non_production_tuple(ingress))
-    end
   end
   ingress_array
 end
@@ -59,7 +51,8 @@ end
 def non_production_tuple(ingress)
   ingress_name = ingress.dig("metadata", "name")
   namespace = ingress.dig("metadata", "namespace")
-  if non_production?(namespace)
+  # To get the production list, change to  !production?(namespace)
+  if !non_production?(namespace)
     {namespace: namespace, ingress_name: ingress_name}
   end
 end
@@ -72,11 +65,6 @@ end
 def non_production?(namespace)
   ns = $namespaces.find { |n| n.dig("metadata", "name") == namespace }
   ns.dig("metadata", "labels", "cloud-platform.justice.gov.uk/is-production") == "false"
-end
-
-def production?(namespace)
-  ns = $namespaces.find { |n| n.dig("metadata", "name") == namespace }
-  ns.dig("metadata", "labels", "cloud-platform.justice.gov.uk/is-production") == "true"
 end
 
 ############################################################
