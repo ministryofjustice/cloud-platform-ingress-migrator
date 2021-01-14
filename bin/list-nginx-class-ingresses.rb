@@ -16,10 +16,11 @@ def main
 
   nginx_class_ingresses = ingresses_matching_class("nginx")
 
-  # This returns ingresses with ingress class annotation  set to "" and ingresses no annotations
-  null_class_ingresses = ingresses_matching_class("") 
+  null_class_ingresses = ingresses_matching_class("")
 
-  list = (nginx_class_ingresses + null_class_ingresses).compact 
+  no_annotation_ingresses = ingresses_matching_no_class
+
+  list = (nginx_class_ingresses + null_class_ingresses + no_annotation_ingresses).compact
  
   puts "Total ingress listed: #{list.size}"
 
@@ -32,6 +33,15 @@ def ingresses_matching_class(target_ingress_class)
   .filter { |ingress| ingress.dig("metadata", "annotations", "kubernetes.io/ingress.class").to_s == target_ingress_class }
   .map do |ingress|
       ingress_array.push(non_production_tuple(ingress))
+  end
+  ingress_array
+end
+
+def ingresses_matching_no_class
+  ingress_array = []
+  get_ingresses.reject { |ingress| ingress.dig("metadata").include?("annotations") }
+  .map do |ingress|
+    ingress_array.push(non_production_tuple(ingress))
   end
   ingress_array
 end
@@ -51,8 +61,8 @@ end
 def non_production_tuple(ingress)
   ingress_name = ingress.dig("metadata", "name")
   namespace = ingress.dig("metadata", "namespace")
-  # To get the production list, change to  !production?(namespace)
-  if !non_production?(namespace)
+  # To get the production list, change to !non_production?(namespace)
+  if non_production?(namespace)
     {namespace: namespace, ingress_name: ingress_name}
   end
 end
