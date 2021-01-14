@@ -2,7 +2,7 @@
 
 # Script to build the list of ingresses and its namespaces with
 # the ingress-class annotations as "nginx" or empty i.e "" or ingress
-# with no annotations and into a json file 
+# with no annotations and into a json file
 # This script will list ingress for all non-prod namespaces. For production ingresses
 # change if non_production?(namespace) to if production?(namespace)
 
@@ -21,7 +21,7 @@ def main
   no_annotation_ingresses = ingresses_matching_no_class
 
   list = (nginx_class_ingresses + null_class_ingresses + no_annotation_ingresses).compact
- 
+
   puts "Total ingress listed: #{list.size}"
 
   File.write(NGINX_CLASS_INGRESS_LIST_FILE, JSON.pretty_generate(list))
@@ -30,9 +30,9 @@ end
 def ingresses_matching_class(target_ingress_class)
   ingress_array = []
   get_ingresses
-  .filter { |ingress| ingress.dig("metadata", "annotations", "kubernetes.io/ingress.class").to_s == target_ingress_class }
-  .map do |ingress|
-      ingress_array.push(non_production_tuple(ingress))
+    .filter { |ingress| ingress.dig("metadata", "annotations", "kubernetes.io/ingress.class").to_s == target_ingress_class }
+    .map do |ingress|
+    ingress_array.push(non_production_tuple(ingress))
   end
   ingress_array
 end
@@ -40,7 +40,7 @@ end
 def ingresses_matching_no_class
   ingress_array = []
   get_ingresses.reject { |ingress| ingress.dig("metadata").include?("annotations") }
-  .map do |ingress|
+    .map do |ingress|
     ingress_array.push(non_production_tuple(ingress))
   end
   ingress_array
