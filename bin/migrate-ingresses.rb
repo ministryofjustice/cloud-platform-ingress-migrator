@@ -21,7 +21,7 @@ def main(list, target_ingress_class)
   ztru = ZoneTxtRecordUpdater.new
   second_ingresses = list.map { |i| migrate_ingress(ztru, i, target_ingress_class) }
 
-  File.write(K8SNGINX_CLASS_INGRESS_LIST_FILE, second_ingresses.to_json)
+  File.write(K8SNGINX_CLASS_INGRESS_LIST_FILE, JSON.pretty_generate(second_ingresses))
 ensure
   restore_ingress_clash_policy
 end
